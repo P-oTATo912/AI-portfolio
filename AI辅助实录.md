@@ -189,9 +189,8 @@ def generate_fill_blank(word_list, txt_path="填空练习题.txt"):
     # 使用with自动管理文件
     with open(txt_path, "w", encoding="utf-8") as out_file:
         for word_info in word_list:
-            vocab = word_info["词汇"]
-            sentence = word_info["例句"]
-            # 将例句里的目标词汇替换为____
+            vocab = word_info["词汇"].strip()
+            sentence = word_info["把字句"]
             blank_sentence = sentence.replace(vocab, "____")
             line = f"填空：{blank_sentence}\n答案：{vocab}\n\n"
             out_file.write(line)
