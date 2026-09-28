@@ -1,9 +1,9 @@
-##1.任务与提示词
+## 1.任务与提示词
 角色：你是Python教学助手
 任务：写一段代码读生词表CSV井生成练习题要求：按HSK等级筛选、统计词性分布、输出txt，仅用标准库，每行加注释。
 最后你输出给我的应该是一段代码
 
-##2.AI初代代码
+## 2.AI初代代码
 # 导入csv标准库，用来读取csv生词表文件
 import csv
 
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     print("练习题已经生成完成！")
 
 
-##3.我的修改点
+## 3.我的修改点
 修改点1：为文件读取、写入增加 encoding="utf-8"
 
 • 修改位置：load_words 和 generate_exercise 函数内所有open()语句
@@ -85,9 +85,11 @@ if __name__ == "__main__":
 
 • 修改位置：load_words函数默认路径，删除import weekpath
 
-• 修改原因：weekpath是课程自定义模块，本机没有安装，会报模块缺失错误。改用相对路径，仅使用Python自带标准库；约定csv放在项目下data文件夹，项目结构清晰。
+• 修改原因：weekpath是课程自定义模块，本机没有安装，会报模块缺失错误。改用相对路径，仅使用Python自带标准库；约定csv放在项目下data文件夹，项目结构
 
-##4.最终代码
+修改点5：将for循环append筛选，替换为列表推导式
+
+## 4.最终代码
 # 导入csv标准库，用来读取csv生词表文件
 import csv
 
@@ -99,15 +101,10 @@ def load_words(csv_path="data/生词表.csv"):
         word_list = list(csv.DictReader(f))
     return word_list
 
-# 定义函数：根据指定HSK等级筛选词汇
+# 定义函数：根据指定HSK等级筛选词汇（作业1改动：使用列表推导式）
 def filter_by_hsk(word_list, target_level="4"):
-    # 创建空列表存放筛选后的词汇
-    filter_result = []
-    # 遍历全部词汇
-    for item in word_list:
-        # 转字符串对比，防止数字/字符串类型不匹配
-        if str(item["HSK等级"]) == str(target_level):
-            filter_result.append(item)
+    # 列表推导式，一次性筛选符合HSK等级的词汇（来自Python官方列表章节）
+    filter_result = [item for item in word_list if str(item["HSK等级"]) == str(target_level)]
     return filter_result
 
 # 定义函数：统计词汇的词性分布
@@ -143,6 +140,74 @@ if __name__ == "__main__":
     generate_exercise(hsk4_words)
     print("练习题已经生成完成！")
 
-
 ## 差异总结
 AI的weekpath模块本机无法加载。我删掉了，改用相对路径data/生词表.csv
+
+
+
+## 9月28号作业2，我选择【生成挖空填空题】
+
+# 导入csv标准库，用来读取csv生词表文件
+import csv
+
+# 定义函数：读取生词表csv文件
+def load_words(csv_path="data/生词表.csv"):
+    # 打开csv文件，增加utf-8编码防止中文乱码
+    with open(csv_path, encoding="utf-8") as f:
+        # 将csv内容转为字典列表，方便按字段读取
+        word_list = list(csv.DictReader(f))
+    return word_list
+
+# 定义函数：根据指定HSK等级筛选词汇（作业1改动：使用列表推导式）
+def filter_by_hsk(word_list, target_level="4"):
+    # 列表推导式，一次性筛选符合HSK等级的词汇（来自Python官方列表章节）
+    filter_result = [item for item in word_list if str(item["HSK等级"]) == str(target_level)]
+    return filter_result
+
+# 定义函数：统计词汇的词性分布
+def count_pos(word_list):
+    # 新建空字典，用来记录每种词性的数量
+    pos_count = {}
+    # 遍历所有词汇
+    for item in word_list:
+        pos = item["词性"]
+        # 如果字典没有该词性，默认0，计数+1
+        pos_count[pos] = pos_count.get(pos, 0) + 1
+    return pos_count
+
+# 定义函数：生成造句练习题并写入txt文件
+def generate_exercise(word_list, txt_path="练习题.txt"):
+    # 使用with自动管理文件，不用手动close
+    with open(txt_path, "w", encoding="utf-8") as out_file:
+        # 遍历筛选后的词汇，生成造句题目
+        for word_info in word_list:
+            line = f"请使用词汇「{word_info['词汇']}」造一个句子\n"
+            out_file.write(line)
+
+# 【作业2新增功能】定义函数：生成挖空填空题，把目标生词替换成____
+def generate_fill_blank(word_list, txt_path="填空练习题.txt"):
+    # 使用with自动管理文件
+    with open(txt_path, "w", encoding="utf-8") as out_file:
+        for word_info in word_list:
+            vocab = word_info["词汇"]
+            sentence = word_info["例句"]
+            # 将例句里的目标词汇替换为____
+            blank_sentence = sentence.replace(vocab, "____")
+            line = f"填空：{blank_sentence}\n答案：{vocab}\n\n"
+            out_file.write(line)
+
+# 主程序入口
+if __name__ == "__main__":
+    # 读取全部生词
+    all_words = load_words()
+    # 筛选HSK4词汇
+    hsk4_words = filter_by_hsk(all_words, "4")
+    # 统计词性
+    pos_dist = count_pos(hsk4_words)
+    print("词性统计结果：", pos_dist)
+    # 生成造句练习题txt
+    generate_exercise(hsk4_words)
+    print("造句练习题已经生成完成！")
+    # 【作业2新增】生成挖空填空练习题
+    generate_fill_blank(hsk4_words)
+    print("填空练习题已经生成完成！")
