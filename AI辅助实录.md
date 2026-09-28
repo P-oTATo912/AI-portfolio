@@ -142,3 +142,7 @@ if __name__ == "__main__":
     # 生成练习题txt
     generate_exercise(hsk4_words)
     print("练习题已经生成完成！")
+
+
+## 差异总结
+AI的weekpath模块本机无法加载。我删掉了，改用相对路径data/生词表.csv
